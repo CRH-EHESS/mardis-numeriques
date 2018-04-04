@@ -1,0 +1,43 @@
+version: '2.0'
+
+services:
+  #------------------------------------------------
+  # WIKI WEBSITE
+  #------------------------------------------------
+  wiki:
+    ports:
+      - 8081:80 
+    build: ./wikidocker
+    image: 'mediawiki:1.30'
+    environment:
+      - MEDIAWIKI_DB_TYPE=mysql
+      - MEDIAWIKI_DB_HOST=wikidb-container
+      - MEDIAWIKI_DB_USER=mediawiki
+      - MEDIAWIKI_DB_PASSWORD=password
+      - MEDIAWIKI_SITE_SERVER=http://localhost:8081
+      - MEDIAWIKI_SHARED=/var/www/data
+      - MEDIAWIKI_SITE_NAME='Geohistoricaldata Wiki'
+      - MEDIAWIKI_SITE_LANG=fr
+      - MEDIAWIKI_ADMIN_USER=admin
+      - MEDIAWIKI_ADMIN_PASS=password
+    depends_on:
+      - wikidb
+    links:
+      - wikidb:wikidb-container
+
+  #------------------------------------------------
+  # WIKI DATABASE
+  #------------------------------------------------
+  wikidb:
+    image: 'mysql:5.7'
+    environment:
+      - MYSQL_ROOT_PASSWORD=admin
+      - MYSQL_DATABASE=mediawiki
+      - MYSQL_USER=mediawiki
+      - MYSQL_PASSWORD=password     
+    volumes:
+      - wiki-data:/var/lib/mysql
+volumes:
+  wiki-data:
+    driver: local
+
